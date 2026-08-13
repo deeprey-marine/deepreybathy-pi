@@ -20,16 +20,28 @@ public:
     void Cleanup();
     void Use();
     
+<<<<<<< HEAD
+=======
+    // Uniforms communs
+>>>>>>> 3b8d03b (Deeprey Bathymetry: bathymetry recording plugin for OpenCPN)
     void SetTransform(const float* matrix);
     void SetTextureSize(float size);
     void SetElevationTexture(int unit);
     void SetDepthRange(float minDepth, float maxDepth);
     void SetNoData(float value);
     
+<<<<<<< HEAD
+=======
+    // Visualisation
+>>>>>>> 3b8d03b (Deeprey Bathymetry: bathymetry recording plugin for OpenCPN)
     void SetGradientTexture(int unit);
     void SetGradientRow(float row);
     void SetShowTileFrame(bool show);
     
+<<<<<<< HEAD
+=======
+    // Ombrage
+>>>>>>> 3b8d03b (Deeprey Bathymetry: bathymetry recording plugin for OpenCPN)
 
     // Isobathes
     void SetIsobathsEnabled(bool enabled);
@@ -60,6 +72,10 @@ private:
     int m_gradientTextureHeight;
     bool m_initialized;
     
+<<<<<<< HEAD
+=======
+    // Locations uniformes
+>>>>>>> 3b8d03b (Deeprey Bathymetry: bathymetry recording plugin for OpenCPN)
     GLint m_transformLoc;
     GLint m_textureSizeLoc;
 

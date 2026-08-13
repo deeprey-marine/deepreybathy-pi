@@ -35,4 +35,8 @@ modules:
       sources:
           - type: git
             url: ..
+<<<<<<< HEAD
             branch: main
+=======
+            branch: master
+>>>>>>> 3b8d03b (Deeprey Bathymetry: bathymetry recording plugin for OpenCPN)

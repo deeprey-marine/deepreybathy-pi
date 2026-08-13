@@ -47,9 +47,13 @@ can be imported from, and exported to, XYZ files.
 
 set(PKG_AUTHOR "Deeprey Research Ltd")
 set(PKG_IS_OPEN_SOURCE "yes")
+<<<<<<< HEAD
 # PKG_HOMEPAGE fills <source> in the catalog metadata: the link users follow to
 # the source. PKG_INFO_URL fills <info-url>, the plugin's home page.
 set(PKG_HOMEPAGE https://github.com/deeprey-marine/deepreybathy-pi)
+=======
+set(CPACK_PACKAGE_HOMEPAGE_URL https://github.com/deeprey-marine/deepreybathy-pi)
+>>>>>>> 3b8d03b (Deeprey Bathymetry: bathymetry recording plugin for OpenCPN)
 set(PKG_INFO_URL https://github.com/deeprey-marine/deepreybathy-pi)
 
 # ----------------------------------------------------------------------------------------------------------------#

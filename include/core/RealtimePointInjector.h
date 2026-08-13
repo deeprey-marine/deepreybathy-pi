@@ -101,6 +101,10 @@ private:
     Rcl GetTileForPoint(const Position3D& point, int level) const;
     std::vector<Rcl> GetChildTilesAtLevel(const Rcl& parentTile, const Position3D& point, int targetLevel) const;
 
+<<<<<<< HEAD
+=======
+    // Membres
+>>>>>>> 3b8d03b (Deeprey Bathymetry: bathymetry recording plugin for OpenCPN)
     BathymetryDataManager* m_dataManager;
     PbgRenderCacheManager* m_renderCache;
     DirtyTileTracker* m_dirtyTracker;

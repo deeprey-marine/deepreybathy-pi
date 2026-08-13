@@ -72,6 +72,10 @@ public:
     static int GetLevelFromPixelScaleMercator(const Position& position, double pixelScaleMercator) {
         if (pixelScaleMercator <= 0) return DpPbg::MAX_LEVEL;
         
+<<<<<<< HEAD
+=======
+        // Standard Web Mercator : utilise directement WEB_MERCATOR_PIXEL_SCALE_LEVEL0
+>>>>>>> 3b8d03b (Deeprey Bathymetry: bathymetry recording plugin for OpenCPN)
         double level = log2(DpPbg::WEB_MERCATOR_PIXEL_SCALE_LEVEL0 / pixelScaleMercator);
         
         int roundedLevel = static_cast<int>(round(level));
