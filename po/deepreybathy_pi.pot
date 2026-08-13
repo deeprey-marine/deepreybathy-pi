@@ -1,0 +1,147 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the deepreybathy_pi package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: deepreybathy_pi 1.0.0.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-08-13 13:44+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/DeepreyBathy_pi.cpp:93
+msgid "Dialog"
+msgstr ""
+
+#: src/DeepreyBathy_pi.cpp:110 src/DeepreyBathy_pi.cpp:114
+#: src/ui/DeepreyBathyPrefsDialog.cpp:37
+msgid "Deeprey Bathymetry"
+msgstr ""
+
+#: src/DeepreyBathy_pi.cpp:598
+msgid "Record depth soundings and build your own bathymetric chart"
+msgstr ""
+
+#: src/DeepreyBathy_pi.cpp:603
+msgid ""
+"Record depth soundings from your echosounder as you sail, and build your own "
+"high-resolution bathymetric chart, rendered live on the chart canvas.\n"
+"\n"
+"Depth is read from standard NMEA 0183 DPT and DBT sentences and tagged with "
+"your GPS position. Soundings accumulate in a local tile database and are "
+"drawn as a colour-shaded depth surface with automatic contour lines. Existing "
+"survey data can be imported from, and exported to, XYZ files."
+msgstr ""
+
+#: src/ui/DeepreyBathyPrefsDialog.cpp:38
+msgid "Deeprey Bathymetry — Preferences"
+msgstr ""
+
+#: src/ui/DeepreyBathyPrefsDialog.cpp:106
+msgid "Show bathymetry overlay"
+msgstr ""
+
+#: src/ui/DeepreyBathyPrefsDialog.cpp:109
+msgid "Show contour lines"
+msgstr ""
+
+#: src/ui/DeepreyBathyPrefsDialog.cpp:113
+msgid "Opacity"
+msgstr ""
+
+#: src/ui/DeepreyBathyPrefsDialog.cpp:123 src/ui/DeepreyBathyPrefsDialog.cpp:200
+msgid "Recording"
+msgstr ""
+
+#: src/ui/DeepreyBathyPrefsDialog.cpp:127
+msgid "Record depth soundings from NMEA"
+msgstr ""
+
+#: src/ui/DeepreyBathyPrefsDialog.cpp:131
+msgid "Filter out bad depth readings"
+msgstr ""
+
+#: src/ui/DeepreyBathyPrefsDialog.cpp:139
+msgid "Data"
+msgstr ""
+
+#: src/ui/DeepreyBathyPrefsDialog.cpp:148
+msgid "Import XYZ..."
+msgstr ""
+
+#: src/ui/DeepreyBathyPrefsDialog.cpp:150
+msgid "Export XYZ..."
+msgstr ""
+
+#: src/ui/DeepreyBathyPrefsDialog.cpp:152
+msgid "Clear..."
+msgstr ""
+
+#: src/ui/DeepreyBathyPrefsDialog.cpp:157
+msgid "Deeprey Bathymetry — Deeprey Research Ltd"
+msgstr ""
+
+#: src/ui/DeepreyBathyPrefsDialog.cpp:195
+msgid "Status: not initialised"
+msgstr ""
+
+#: src/ui/DeepreyBathyPrefsDialog.cpp:200
+msgid "Idle"
+msgstr ""
+
+#: src/ui/DeepreyBathyPrefsDialog.cpp:202
+#, c-format
+msgid "Status: %s — %zu points this session, %zu rejected"
+msgstr ""
+
+#: src/ui/DeepreyBathyPrefsDialog.cpp:210
+#, c-format
+msgid "%.1f MB  ·  %zu points  ·  %s"
+msgstr ""
+
+#: src/ui/DeepreyBathyPrefsDialog.cpp:273
+msgid "Import XYZ file"
+msgstr ""
+
+#: src/ui/DeepreyBathyPrefsDialog.cpp:274 src/ui/DeepreyBathyPrefsDialog.cpp:306
+msgid "XYZ files (*.xyz)|*.xyz|All files (*.*)|*.*"
+msgstr ""
+
+#: src/ui/DeepreyBathyPrefsDialog.cpp:282
+msgid "Importing"
+msgstr ""
+
+#: src/ui/DeepreyBathyPrefsDialog.cpp:282
+msgid "Reading points..."
+msgstr ""
+
+#: src/ui/DeepreyBathyPrefsDialog.cpp:305
+msgid "Export XYZ file"
+msgstr ""
+
+#: src/ui/DeepreyBathyPrefsDialog.cpp:310
+msgid "Exporting"
+msgstr ""
+
+#: src/ui/DeepreyBathyPrefsDialog.cpp:310
+msgid "Writing points..."
+msgstr ""
+
+#: src/ui/DeepreyBathyPrefsDialog.cpp:317
+msgid ""
+"Delete all recorded bathymetry data?\n"
+"\n"
+"This cannot be undone."
+msgstr ""
+
+#: src/ui/DeepreyBathyPrefsDialog.cpp:319
+msgid "Clear bathymetry data"
+msgstr ""

@@ -1,0 +1,37 @@
+# Build output
+/build
+/build_*
+/build-standalone/
+/build-plugin/
+/cache/
+
+# wxWidgets is a build dependency, not vendored here.
+# On Windows, buildwin/win_deps.bat fetches the headers into cache/.
+
+# Survey data / test fixtures — never commit, these run to gigabytes
+*.xyz
+*.db
+
+# Editors / IDEs
+.vscode/
+.cache/clangd/
+compile_commands.json
+CMakeLists.txt.user
+cmake_byVsCode/
+.serena
+*.user
+*.swp
+*~
+
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+
+# Agent tooling
+.claude/
+
+# NOTE: docs/, *.md and *.txt are deliberately NOT ignored — documentation is
+# part of the repository.

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Deeprey Bathymetry toolbar icon (normal state).
+     A swatch of what the plugin draws: depth-shaded bands from shallow to deep
+     with a contour line on every band boundary.
+
+     No <clipPath>: each band path closes along the tile's own rounded outline,
+     so the artwork survives minimal SVG renderers that ignore clipping. -->
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1"
+     width="32" height="32" viewBox="0 0 32 32">
+  <rect x="3" y="3" width="26" height="26" rx="4.5" fill="#a8dcef"/>
+  <path fill="#4f9fce"
+        d="M3 11.5 C10 7.5 16.5 13.5 22.5 11.5 C26 10.3 29 11 29 11
+           L29 24.5 A4.5 4.5 0 0 1 24.5 29 L7.5 29 A4.5 4.5 0 0 1 3 24.5 Z"/>
+  <path fill="#1a6aa5"
+        d="M3 18 C10 14.5 16.5 20 22.5 18.5 C26 17.6 29 18 29 18
+           L29 24.5 A4.5 4.5 0 0 1 24.5 29 L7.5 29 A4.5 4.5 0 0 1 3 24.5 Z"/>
+  <path fill="#0a3a6b"
+        d="M3 24 C10 21 16.5 25.5 22.5 24.5 C26 23.9 29 24 29 24
+           L29 24.5 A4.5 4.5 0 0 1 24.5 29 L7.5 29 A4.5 4.5 0 0 1 3 24.5 Z"/>
+  <g fill="none" stroke="#00214a" stroke-width="1.15">
+    <path d="M3 11.5 C10 7.5 16.5 13.5 22.5 11.5 C26 10.3 29 11 29 11"/>
+    <path d="M3 18 C10 14.5 16.5 20 22.5 18.5 C26 17.6 29 18 29 18"/>
+    <path d="M3 24 C10 21 16.5 25.5 22.5 24.5 C26 23.9 29 24 29 24"/>
+  </g>
+  <rect x="3" y="3" width="26" height="26" rx="4.5"
+        fill="none" stroke="#000a50" stroke-width="2.3"/>
+</svg>
