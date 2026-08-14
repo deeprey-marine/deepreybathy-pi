@@ -22,13 +22,15 @@
 #include "BathymetryDataManager.h"
 #include "PbgRenderCacheManager.h"
 #include "RealTimePointFilter.h"
+#include "DpTideManager.h"
 
 enum {
   ID_DV_OPACITY = wxID_HIGHEST + 1,
   ID_DV_IMPORT,
   ID_DV_EXPORT,
   ID_DV_CLEAR,
-  ID_DV_STATUS_TIMER
+  ID_DV_STATUS_TIMER,
+  ID_DV_TIDE_OFFSET
 };
 
 DeepreyBathyPrefsDialog::DeepreyBathyPrefsDialog(wxWindow *parent,
@@ -47,6 +49,7 @@ DeepreyBathyPrefsDialog::DeepreyBathyPrefsDialog(wxWindow *parent,
   SyncFromPlugin();
   RefreshDatabaseInfo();
   RefreshStatus();
+  RefreshTideStatus();
 
   if (m_modeless) {
     Bind(wxEVT_BUTTON, &DeepreyBathyPrefsDialog::OnCloseButton, this, wxID_CLOSE);
@@ -54,7 +57,7 @@ DeepreyBathyPrefsDialog::DeepreyBathyPrefsDialog(wxWindow *parent,
     // it too, or the default handler hides the window behind our back and the
     // toolbar button stays checked.
     Bind(wxEVT_BUTTON, &DeepreyBathyPrefsDialog::OnCloseButton, this, wxID_CANCEL);
-    // No id: the four setting checkboxes are the only ones in the dialog, and
+    // No id: the five setting checkboxes are the only ones in the dialog, and
     // each one applies the whole control state anyway.
     Bind(wxEVT_CHECKBOX, &DeepreyBathyPrefsDialog::OnLiveSetting, this);
   } else {
@@ -64,6 +67,8 @@ DeepreyBathyPrefsDialog::DeepreyBathyPrefsDialog(wxWindow *parent,
 
   Bind(wxEVT_CLOSE_WINDOW, &DeepreyBathyPrefsDialog::OnClose, this);
   Bind(wxEVT_SLIDER, &DeepreyBathyPrefsDialog::OnOpacity, this, ID_DV_OPACITY);
+  Bind(wxEVT_SPINCTRLDOUBLE, &DeepreyBathyPrefsDialog::OnTideOffset, this,
+       ID_DV_TIDE_OFFSET);
   Bind(wxEVT_BUTTON, &DeepreyBathyPrefsDialog::OnImport, this, ID_DV_IMPORT);
   Bind(wxEVT_BUTTON, &DeepreyBathyPrefsDialog::OnExport, this, ID_DV_EXPORT);
   Bind(wxEVT_BUTTON, &DeepreyBathyPrefsDialog::OnClear, this, ID_DV_CLEAR);
@@ -93,6 +98,8 @@ void DeepreyBathyPrefsDialog::SyncFromPlugin() {
   m_origOpacity = m_plugin->GetOpacity();
   m_origRecord = m_plugin->IsRecordingEnabled();
   m_origFilter = m_plugin->AreFiltersEnabled();
+  m_origTide = m_plugin->IsTideCorrectionEnabled();
+  m_origTideOffset = m_plugin->GetTideDatumOffset();
   PushStateToControls();
 }
 
@@ -134,6 +141,38 @@ void DeepreyBathyPrefsDialog::BuildControls() {
   m_lblStatus = new wxStaticText(this, wxID_ANY, wxEmptyString);
   top->Add(m_lblStatus, 0, wxLEFT | wxRIGHT | wxBOTTOM, border);
 
+  // --- Tide ---
+  top->Add(new wxStaticLine(this), 0, wxEXPAND | wxALL, border);
+  top->Add(new wxStaticText(this, wxID_ANY, _("Tide")), 0, wxLEFT | wxRIGHT,
+           border);
+
+  m_chkTide = new wxCheckBox(
+      this, wxID_ANY, _("Reduce soundings to chart datum (tide correction)"));
+  m_chkTide->SetToolTip(
+      _("Subtracts the tide height at the nearest tide station from every "
+        "recorded sounding, so passes made at different states of tide agree. "
+        "Requires OpenCPN's tide data to be installed."));
+  top->Add(m_chkTide, 0, wxALL, border);
+
+  auto *tideRow = new wxBoxSizer(wxHORIZONTAL);
+  tideRow->Add(new wxStaticText(this, wxID_ANY, _("Datum offset (m)")), 0,
+               wxALIGN_CENTER_VERTICAL | wxRIGHT, border);
+  m_spinTideOffset = new wxSpinCtrlDouble(
+      this, ID_DV_TIDE_OFFSET, wxEmptyString, wxDefaultPosition, wxDefaultSize,
+      wxSP_ARROW_KEYS, -DpTideManager::MAX_DATUM_OFFSET,
+      DpTideManager::MAX_DATUM_OFFSET, 0.0, 0.1);
+  m_spinTideOffset->SetDigits(2);
+  m_spinTideOffset->SetToolTip(
+      _("Fixed water-level adjustment, subtracted from every sounding along "
+        "with the tide height. Use it when the tide station's datum differs "
+        "from the chart datum. This is NOT the transducer offset — that comes "
+        "from the DPT sentence and is already applied."));
+  tideRow->Add(m_spinTideOffset, 0, wxALIGN_CENTER_VERTICAL);
+  top->Add(tideRow, 0, wxLEFT | wxRIGHT | wxBOTTOM, border);
+
+  m_lblTideStatus = new wxStaticText(this, wxID_ANY, wxEmptyString);
+  top->Add(m_lblTideStatus, 0, wxLEFT | wxRIGHT | wxBOTTOM, border);
+
   // --- Data ---
   top->Add(new wxStaticLine(this), 0, wxEXPAND | wxALL, border);
   top->Add(new wxStaticText(this, wxID_ANY, _("Data")), 0, wxLEFT | wxRIGHT,
@@ -171,6 +210,8 @@ void DeepreyBathyPrefsDialog::PushStateToControls() {
   m_chkContours->SetValue(m_origContours);
   m_chkRecord->SetValue(m_origRecord);
   m_chkFilter->SetValue(m_origFilter);
+  m_chkTide->SetValue(m_origTide);
+  m_spinTideOffset->SetValue(m_origTideOffset);
 
   int pct = static_cast<int>(m_origOpacity * 100.0f + 0.5f);
   if (pct < 10) pct = 10;
@@ -187,6 +228,9 @@ void DeepreyBathyPrefsDialog::ApplyControlsToPlugin() {
   m_plugin->SetOpacity(m_sldOpacity->GetValue() / 100.0f);
   m_plugin->SetRecordingEnabled(m_chkRecord->GetValue());
   m_plugin->SetFiltersEnabled(m_chkFilter->GetValue());
+  m_plugin->SetTideCorrectionEnabled(m_chkTide->GetValue());
+  m_plugin->SetTideDatumOffset(m_spinTideOffset->GetValue());
+  RefreshTideStatus();
 }
 
 void DeepreyBathyPrefsDialog::RefreshStatus() {
@@ -204,6 +248,34 @@ void DeepreyBathyPrefsDialog::RefreshStatus() {
                                      stats.filterStats.totalAccepted));
 }
 
+// "Enabled" and "actually correcting" are not the same thing — no tide data
+// installed, or no station within range, leaves recording running with depths
+// that are NOT reduced to datum. Say so plainly rather than let the checkbox
+// imply the survey is corrected when it is not.
+void DeepreyBathyPrefsDialog::RefreshTideStatus() {
+  const DpTideManager *tide = m_plugin->GetTideManager();
+  if (!tide) {
+    m_lblTideStatus->SetLabel(_("Tide: not initialised"));
+    return;
+  }
+
+  if (!tide->IsEnabled()) {
+    m_lblTideStatus->SetLabel(_("Tide correction off — depths as measured"));
+    return;
+  }
+
+  if (!tide->HasStation()) {
+    m_lblTideStatus->SetLabel(
+        _("Tide: no station data — depths NOT reduced to datum"));
+    return;
+  }
+
+  m_lblTideStatus->SetLabel(wxString::Format(
+      _("Tide: %s (%.1f nm) — %+.2f m"),
+      wxString::FromUTF8(tide->GetStationName().c_str()),
+      tide->GetStationDistanceNm(), tide->GetCurrentTideHeight()));
+}
+
 void DeepreyBathyPrefsDialog::RefreshDatabaseInfo() {
   if (!m_io) return;
   m_lblDbInfo->SetLabel(wxString::Format(
@@ -217,7 +289,19 @@ void DeepreyBathyPrefsDialog::RefreshDatabaseInfo() {
   }
 }
 
-void DeepreyBathyPrefsDialog::OnStatusTimer(wxTimerEvent &) { RefreshStatus(); }
+void DeepreyBathyPrefsDialog::OnStatusTimer(wxTimerEvent &) {
+  RefreshStatus();
+  // Station selection and the tide sample cache both move on their own, so this
+  // has to be polled rather than pushed.
+  RefreshTideStatus();
+}
+
+void DeepreyBathyPrefsDialog::OnTideOffset(wxSpinDoubleEvent &) {
+  m_plugin->SetTideDatumOffset(m_spinTideOffset->GetValue());
+  RefreshTideStatus();
+  // Modal mode defers persistence to OK, so that Cancel can still revert.
+  if (m_modeless) m_plugin->SaveConfig();
+}
 
 void DeepreyBathyPrefsDialog::OnOpacity(wxCommandEvent &) {
   const int pct = m_sldOpacity->GetValue();
@@ -262,6 +346,8 @@ void DeepreyBathyPrefsDialog::OnCancel(wxCommandEvent &) {
   m_plugin->SetOpacity(m_origOpacity);
   m_plugin->SetRecordingEnabled(m_origRecord);
   m_plugin->SetFiltersEnabled(m_origFilter);
+  m_plugin->SetTideCorrectionEnabled(m_origTide);
+  m_plugin->SetTideDatumOffset(m_origTideOffset);
   m_plugin->DpRequestRefresh();
   EndModal(wxID_CANCEL);
 }

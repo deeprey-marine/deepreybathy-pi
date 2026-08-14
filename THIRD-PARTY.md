@@ -21,7 +21,7 @@ into the built plugin binary:
 
 | Component | Copyright |
 |---|---|
-| Plugin API (`api-18/ocpn_plugin.h`) | David S. Register |
+| Plugin API (`api-21/ocpn_plugin.h`) | David S. Register |
 | NMEA 0183 parser (`nmea0183/`) | David S. Register and contributors |
 | Plugin device context (`plugin_dc/`) | Jon Gough |
 | wxJSON (`wxJSON/`) | Luciano Cattani |

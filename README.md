@@ -28,9 +28,10 @@ actually sail.
 
 ## Requirements
 
-- OpenCPN 5.8.0 or newer (plugin API 1.18)
+- OpenCPN 5.12.0 or newer (plugin API 1.21 — required for tide correction)
 - A depth sounder that outputs NMEA 0183 `DPT` or `DBT`
 - A GPS position source
+- OpenCPN's tide/current data (tcdata) configured, for reduction to chart datum
 
 OpenGL is used for rendering; any machine that runs OpenCPN's chart canvas
 will run Deeprey Bathymetry.

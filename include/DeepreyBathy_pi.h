@@ -25,6 +25,7 @@
 #include "DirtyTileTracker.h"
 #include "AsyncPersistenceManager.h"
 #include "RealtimePointInjector.h"
+#include "DpTideManager.h"
 
 #include "ocpn_plugin.h"
 #include "config.h"
@@ -41,14 +42,14 @@ class DeepreyBathyPrefsDialog;
 //    The PlugIn Class Definition
 //----------------------------------------------------------------------------
 //
-// API 1.18 is targeted deliberately: it covers OpenCPN 5.8.0 through 5.14.0,
-// which is the overwhelming majority of the install base and what the plugin
-// catalog targets. Everything used here exists at 1.18.
+// API 1.21 (OpenCPN 5.12.0+) is required, not merely convenient: tide
+// correction needs HostApi121::GetNearestTideStation/GetTideHeight, which have
+// no equivalent at 1.18-1.20. See the comment in Plugin.cmake for the trade.
 //
 // wxEvtHandler is inherited so that GetListener() has an event sink to deliver
 // NMEA 0183 messages to. (The upstream plugin got this for free from wxTimer.)
 
-class DeepreyBathy_pi : public opencpn_plugin_118, public wxEvtHandler {
+class DeepreyBathy_pi : public opencpn_plugin_121, public wxEvtHandler {
 public:
   DeepreyBathy_pi(void *ppimgr);
 
@@ -94,6 +95,13 @@ public:
   void SetRecordingEnabled(bool enabled);
   bool AreFiltersEnabled() const;
   void SetFiltersEnabled(bool enabled);
+  bool IsTideCorrectionEnabled() const;
+  void SetTideCorrectionEnabled(bool enabled);
+  double GetTideDatumOffset() const;
+  void SetTideDatumOffset(double meters);
+  // For the prefs dialog's status line — station name, distance and current
+  // height, which have no meaningful setter.
+  const DpTideManager *GetTideManager() const { return m_tideManager.get(); }
 
   BathymetryRenderer *GetRenderer() { return m_bathymetryRenderer.get(); }
   RealtimePointInjector *GetInjector() { return m_pointInjector.get(); }
@@ -120,6 +128,9 @@ private:
              const wxString &message);
   bool LoadConfig(void);
   void ApplyStoredSettings();
+  // Split out of ApplyStoredSettings because tide state must be live before the
+  // first frame, not after it.
+  void ApplyStoredTideSettings();
   void ApplyFixedRenderSettings();
 
   // --- NMEA depth path -----------------------------------------------------
@@ -165,6 +176,13 @@ private:
 
   // Live sounding ingestion
   std::unique_ptr<RealtimePointInjector> m_pointInjector;
+
+  // Reduction of recorded soundings to chart datum. The host API handle is
+  // only obtainable from LateInit(), so the manager is built there rather than
+  // in Init().
+  std::shared_ptr<HostApi> m_host_api;
+  std::shared_ptr<HostApi121> m_api_121;
+  std::unique_ptr<DpTideManager> m_tideManager;
 
   bool InitializeRealtimeInjection();
   void CleanupRealtimeInjection();

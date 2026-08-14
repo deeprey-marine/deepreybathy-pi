@@ -14,10 +14,6 @@
 #include <sstream>
 
 std::string ShaderUtils::GetShaderPath(const std::string& filename) {
-<<<<<<< HEAD
-=======
-    // Essayer plusieurs chemins possibles
->>>>>>> 3b8d03b (Deeprey Bathymetry: bathymetry recording plugin for OpenCPN)
     wxArrayString possiblePaths;
     
     wxFileName fn1(wxStandardPaths::Get().GetExecutablePath());

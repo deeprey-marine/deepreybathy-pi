@@ -29,10 +29,6 @@ public:
         const double tileWidth  = right  - left;   // X (E-O)
         const double tileHeight = top    - bottom; // Y (N-S)
 
-<<<<<<< HEAD
-=======
-        // Pixels utiles 
->>>>>>> 3b8d03b (Deeprey Bathymetry: bathymetry recording plugin for OpenCPN)
         const double usablePixels     = static_cast<double>(textureSize);
         const double usableIntervals  = usablePixels -1;              // ex. 255
 

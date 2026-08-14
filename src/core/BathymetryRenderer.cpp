@@ -723,10 +723,6 @@ void BathymetryRenderer::CalculateTileTransform(const Rcl& tile, float* mat)
     double tileTop    = tl.Y();
     double tileBottom = br.Y();
     
-<<<<<<< HEAD
-=======
-    // --- 2. Bornes viewport Mercator -----------------------------------------
->>>>>>> 3b8d03b (Deeprey Bathymetry: bathymetry recording plugin for OpenCPN)
     double viewLeft, viewBottom;
     PbgTileDatabase::LatLonToMercator(
         m_lastViewport.lat_min, m_lastViewport.lon_min, viewLeft, viewBottom);
@@ -894,10 +890,6 @@ bool BathymetryRenderer::RenderGridToTextureWithExtendedGrid(
     
     RenderPointsToTextureWithBorder(seeds.points, tile, DpPbg::FIXED_BORDER_WIDTH, defaultFbo);
     
-<<<<<<< HEAD
-=======
-    // Dilater
->>>>>>> 3b8d03b (Deeprey Bathymetry: bathymetry recording plugin for OpenCPN)
     m_dilationRenderer->RenderPbgData(
         m_globalWorkElevation.get(),
         m_globalWorkWeight.get(),

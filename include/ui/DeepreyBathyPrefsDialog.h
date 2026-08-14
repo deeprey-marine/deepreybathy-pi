@@ -12,6 +12,7 @@
 #include <wx/dialog.h>
 #include <wx/checkbox.h>
 #include <wx/slider.h>
+#include <wx/spinctrl.h>
 #include <wx/stattext.h>
 #include <wx/button.h>
 #include <wx/timer.h>
@@ -48,11 +49,13 @@ private:
   void PushStateToControls();
   void ApplyControlsToPlugin();
   void RefreshStatus();
+  void RefreshTideStatus();
   void RefreshDatabaseInfo();
 
   void OnOk(wxCommandEvent &event);
   void OnCancel(wxCommandEvent &event);
   void OnOpacity(wxCommandEvent &event);
+  void OnTideOffset(wxSpinDoubleEvent &event);
   void OnImport(wxCommandEvent &event);
   void OnExport(wxCommandEvent &event);
   void OnClear(wxCommandEvent &event);
@@ -76,6 +79,9 @@ private:
   wxCheckBox *m_chkRecord = nullptr;
   wxCheckBox *m_chkFilter = nullptr;
   wxStaticText *m_lblStatus = nullptr;
+  wxCheckBox *m_chkTide = nullptr;
+  wxSpinCtrlDouble *m_spinTideOffset = nullptr;
+  wxStaticText *m_lblTideStatus = nullptr;
   wxStaticText *m_lblDbPath = nullptr;
   wxStaticText *m_lblDbInfo = nullptr;
 
@@ -88,6 +94,8 @@ private:
   float m_origOpacity = 1.0f;
   bool m_origRecord = false;
   bool m_origFilter = false;
+  bool m_origTide = false;
+  double m_origTideOffset = 0.0;
 };
 
 #endif  // _DEEPREYBATHY_PREFS_DIALOG_H_

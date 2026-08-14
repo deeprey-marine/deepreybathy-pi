@@ -47,13 +47,9 @@ can be imported from, and exported to, XYZ files.
 
 set(PKG_AUTHOR "Deeprey Research Ltd")
 set(PKG_IS_OPEN_SOURCE "yes")
-<<<<<<< HEAD
 # PKG_HOMEPAGE fills <source> in the catalog metadata: the link users follow to
 # the source. PKG_INFO_URL fills <info-url>, the plugin's home page.
 set(PKG_HOMEPAGE https://github.com/deeprey-marine/deepreybathy-pi)
-=======
-set(CPACK_PACKAGE_HOMEPAGE_URL https://github.com/deeprey-marine/deepreybathy-pi)
->>>>>>> 3b8d03b (Deeprey Bathymetry: bathymetry recording plugin for OpenCPN)
 set(PKG_INFO_URL https://github.com/deeprey-marine/deepreybathy-pi)
 
 # ----------------------------------------------------------------------------------------------------------------#
@@ -95,6 +91,7 @@ set(CORE_SOURCES
     src/core/RealTimePointFilter.cpp
     src/core/DirtyTileTracker.cpp
     src/core/AsyncPersistenceManager.cpp
+    src/core/DpTideManager.cpp
 )
 
 set(CORE_HEADERS
@@ -131,6 +128,7 @@ set(CORE_HEADERS
     include/core/RealTimePointFilter.h
     include/core/DirtyTileTracker.h
     include/core/AsyncPersistenceManager.h
+    include/core/DpTideManager.h
 )
 
 set(GLEW_SOURCES
@@ -168,11 +166,18 @@ source_group("" FILES
 
 add_definitions("-DocpnUSE_GL")
 
-# API 1.18 covers OpenCPN 5.8.0 through 5.14.0 — by far the widest install base,
-# and what the live plugin catalog overwhelmingly targets. Everything this plugin
-# needs (GetListener/NMEA0183Id, SetPositionFixEx, ShowPreferencesDialog,
-# InsertPlugInToolSVG, RenderGLOverlayMultiCanvas with priority) exists at 1.18.
-set(PKG_API_LIB api-18)  #  A directory in opencpn-libs/ e. g., api-18 or api-21
+# API 1.21 (OpenCPN 5.12.0 and newer) is required for tide correction:
+# HostApi121::GetNearestTideStation/GetTideHeight are the only way a plugin can
+# read tide heights, and they do not exist at 1.18/1.19/1.20 — those expose
+# nothing beyond the EnableTideStationsDisplay icon toggle. Without them every
+# sounding is stored at whatever the water level happened to be, so repeat
+# passes disagree by the tidal range.
+#
+# This deliberately gives up OpenCPN 5.8–5.10, which the previous api-18 target
+# covered. Everything else the plugin uses (GetListener/NMEA0183Id,
+# SetPositionFixEx, ShowPreferencesDialog, InsertPlugInToolSVG,
+# RenderGLOverlayMultiCanvas with priority) is unchanged at 1.21.
+set(PKG_API_LIB api-21)  #  A directory in opencpn-libs/ e. g., api-18 or api-21
 
 macro(late_init)
   # Perform initialization after the PACKAGE_NAME library, compilers

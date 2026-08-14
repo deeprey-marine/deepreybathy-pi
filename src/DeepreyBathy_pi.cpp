@@ -65,7 +65,7 @@ wxDEFINE_EVENT(EVT_N0183_DBT, ObservedEvt);
 //----------------------------------------------------------------------------
 
 DeepreyBathy_pi::DeepreyBathy_pi(void *ppimgr)
-    : opencpn_plugin_118(ppimgr),
+    : opencpn_plugin_121(ppimgr),
       m_pconfig(nullptr),
       m_pidc(nullptr),
       m_Font_DC(nullptr),
@@ -127,7 +127,22 @@ int DeepreyBathy_pi::Init(void) {
           WANTS_PREFERENCES);
 }
 
-void DeepreyBathy_pi::LateInit(void) { InitLogger(); }
+void DeepreyBathy_pi::LateInit(void) {
+  InitLogger();
+
+  // GetHostApi() is not available during Init(). The cast fails only if the
+  // host predates 1.21, which it cannot here — OpenCPN refuses to load a plugin
+  // declaring a newer API than its own — but DpTideManager tolerates a null
+  // handle rather than assuming.
+  m_host_api = std::move(GetHostApi());
+  m_api_121 = std::dynamic_pointer_cast<HostApi121>(m_host_api);
+  m_tideManager = std::make_unique<DpTideManager>(m_api_121);
+
+  // Deliberately not in ApplyStoredSettings(): that runs from the first GL
+  // render, and a sounding arriving before the first frame would be recorded
+  // with tide correction still at its default.
+  ApplyStoredTideSettings();
+}
 
 bool DeepreyBathy_pi::InitializeGL() {
   if (m_glInitialized) return true;
@@ -176,6 +191,13 @@ bool DeepreyBathy_pi::DeInit(void) {
 
   m_listener_dpt.reset();
   m_listener_dbt.reset();
+
+  // After SaveConfig, which reads the tide settings back out of the manager.
+  // Released here rather than left to the destructor so the host API handle
+  // does not outlive DeInit.
+  m_tideManager.reset();
+  m_api_121.reset();
+  m_host_api.reset();
 
   CleanupRealtimeInjection();
   CleanupBathymetry();
@@ -375,6 +397,17 @@ void DeepreyBathy_pi::OnDepthSentence(const std::string &payload, bool isDpt) {
   if ((nowMs - m_fixTimeMs) > FixedSettings::kFixMaxAgeMs) return;
 
   Position pos = Position::FromLatLon(m_fixLat, m_fixLon);
+
+  // Reduce to chart datum. Applied after the sanity check above, which is about
+  // the sentence being usable, and before injection, so what reaches the tile
+  // database is comparable between passes taken at different states of tide.
+  //
+  // A consequence worth knowing: InjectPoint only queues, and RealTimePointFilter
+  // range-gates later on the injector's worker thread — against the REDUCED
+  // depth. Ground that dries below kFilterMinDepth at datum is therefore
+  // dropped by the range filter. That is intended, not a bug.
+  if (m_tideManager) depthMeters -= m_tideManager->GetTideCorrection();
+
   // z is NEGATIVE depth: the filter negates it back and range-gates on the
   // positive value, so a positive z here means every point is rejected.
   m_pointInjector->InjectPoint(Position3D(pos.X(), pos.Y(), -depthMeters));
@@ -391,6 +424,13 @@ void DeepreyBathy_pi::SetPositionFixEx(PlugIn_Position_Fix_Ex &pfix) {
   if (m_pointInjector) {
     m_pointInjector->SetCurrentSpeedKnots(std::isnan(pfix.Sog) ? -1.0
                                                                : pfix.Sog);
+  }
+
+  // Drives station selection and the tide sample cache. No timer is needed:
+  // fixes arrive around 1 Hz, and both jobs inside Update() are rate-limited.
+  if (m_tideManager && m_fixValid) {
+    m_tideManager->UpdatePosition(m_fixLat, m_fixLon);
+    m_tideManager->Update();
   }
 }
 
@@ -512,6 +552,23 @@ void DeepreyBathy_pi::SetFiltersEnabled(bool enabled) {
   if (filter) filter->SetMasterEnabled(enabled);
 }
 
+bool DeepreyBathy_pi::IsTideCorrectionEnabled() const {
+  return m_tideManager ? m_tideManager->IsEnabled() : false;
+}
+
+void DeepreyBathy_pi::SetTideCorrectionEnabled(bool enabled) {
+  if (m_tideManager) m_tideManager->SetEnabled(enabled);
+}
+
+double DeepreyBathy_pi::GetTideDatumOffset() const {
+  return m_tideManager ? m_tideManager->GetDatumOffset() : 0.0;
+}
+
+void DeepreyBathy_pi::SetTideDatumOffset(double meters) {
+  // The manager clamps to +/-MAX_DATUM_OFFSET itself.
+  if (m_tideManager) m_tideManager->SetDatumOffset(meters);
+}
+
 /** ------------------------------------------------------------------
  *  CONFIG
  *  ------------------------------------------------------------------ */
@@ -537,7 +594,28 @@ bool DeepreyBathy_pi::SaveConfig(void) {
   pConf->Write(_T("BathymetryOpacity"), (double)GetOpacity());
   pConf->Write(_T("LiveRecordingEnabled"), IsRecordingEnabled());
   pConf->Write(_T("FiltersEnabled"), AreFiltersEnabled());
+  pConf->Write(_T("TideCorrectionEnabled"), IsTideCorrectionEnabled());
+  pConf->Write(_T("TideDatumOffset"), GetTideDatumOffset());
   return true;
+}
+
+// Applied from LateInit, as soon as the host API handle exists — before any
+// sounding can be recorded.
+void DeepreyBathy_pi::ApplyStoredTideSettings() {
+  wxFileConfig *pConf = m_pconfig;
+  if (!pConf) return;
+
+  pConf->SetPath(_T("/Settings/DeepreyBathymetry"));
+
+  // Defaults on: an uncorrected survey is the problem this exists to solve, so
+  // it should take a deliberate act to turn it off.
+  bool tide = true;
+  pConf->Read(_T("TideCorrectionEnabled"), &tide, true);
+  SetTideCorrectionEnabled(tide);
+
+  double datumOffset = 0.0;
+  pConf->Read(_T("TideDatumOffset"), &datumOffset, 0.0);
+  SetTideDatumOffset(datumOffset);
 }
 
 // Applied after the renderer exists, from the first render pass.

@@ -32,10 +32,6 @@ void BathymetryRenderParams::UpdateTransition(float deltaTime) {
     
     float t = m_transitionProgress;
 
-<<<<<<< HEAD
-=======
-    // Ease Out Quad (fin lente)
->>>>>>> 3b8d03b (Deeprey Bathymetry: bathymetry recording plugin for OpenCPN)
     t = t * (2.0f - t);
 
     m_currentDepthRange = MinMax(
