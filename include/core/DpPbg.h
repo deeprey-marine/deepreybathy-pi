@@ -9,6 +9,7 @@
 #include <wx/wx.h>
 #include <algorithm>
 #include <cmath>
+#include <cstdint>
 
 namespace DpPbg {
 
